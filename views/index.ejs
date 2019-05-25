@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://pagination.js.org/dist/2.1.4/pagination.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+</head>
+<body>
+	<h1>halo</h1>
+
+    <div id="show_comments"></div>
+    <table id="example" class="table table-striped">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>action</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>action</th>
+            </tr>
+        </tfoot>
+    </table>
+    <input type="text" id="comment">
+    <input type="button" id="add_status" value="post">
+
+	<script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src = "http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script>
+    $(document).ready(function(){
+          var socket = io();
+
+        $('#comment').bind('keypress', function(e) {
+            if(e.keyCode==13){
+                socket.emit('status added',$("#comment").val());
+                $("#comment").val("")
+            }
+        });
+
+        socket.on('item deleted', function (data) {
+            var id = data.id;
+            document.querySelector(`#example tbody #row-${id}`).remove();
+            console.log(id)
+        });
+
+        socket.on('item edited', function (data) {
+            var id = data.id;
+            $(`#example tbody #row-${id} input`).val(data.text);
+        })
+
+
+        socket.on('refresh feed',function(msg){
+            console.log(msg)
+            var tr =document.createElement("tr");
+            tr.setAttribute("id","row-"+msg.id);
+
+            var id = document.createElement("td");
+            id.textContent = msg.id;
+            tr.appendChild(id);
+
+            var text = document.createElement("td");
+            var input = document.createElement("input");
+            input.setAttribute("type", "text");
+            input.setAttribute("value", msg.text);
+            input.setAttribute("index-item", msg.index);
+            input.addEventListener("keypress", editData)
+            text.appendChild(input)
+            tr.appendChild(text);
+
+            var action = document.createElement("tr");
+            var btn = document.createElement("button");
+            btn.setAttribute("id-item",msg.index)
+            btn.textContent = "delete"
+            btn.addEventListener("click", deleteitem);
+            action.appendChild(btn);
+            tr.appendChild(action);
+
+            $('#example tbody').append(tr)
+            // $("#ex").append(msg + '<br /><br />');
+
+        });
+
+        function deleteitem() {
+            var val = $(this).attr("id-item");
+            console.log(val);
+            socket.emit('delete item', val);
+        }
+
+        function editData(e) {
+            if(e.keyCode==13){
+                console.log('edit data');
+                var id = $(this).attr("index-item");
+                var val = $(this).val();
+                socket.emit('edit data',id, val );
+            }
+        }
+
+
+
+    });
+    </script>
+</body>
+</html>

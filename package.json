@@ -1,0 +1,21 @@
+{
+  "name": "socketio-livedata",
+  "version": "1.0.0",
+  "description": "live strem data using socket.io express mysql ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "livedat",
+    "socket.io"
+  ],
+  "author": "nova lufian",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^2.6.1",
+    "express": "^4.17.0",
+    "mysql": "^2.17.1",
+    "socket.io": "^2.2.0"
+  }
+}
